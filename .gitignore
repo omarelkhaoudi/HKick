@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+frontend/dist/
+backend/dist/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!backend/.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime/cache
+.DS_Store
+Thumbs.db
+.vite/
+.cache/
+coverage/
+
+# Local editor files
+.vscode/
+.idea/
+
+# Prisma generated/runtime files
+*.db
+*.db-journal
