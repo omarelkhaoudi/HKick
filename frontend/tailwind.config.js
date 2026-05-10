@@ -4,18 +4,20 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['Inter', 'ui-sans-serif', 'system-ui'],
         sans: ['Inter', 'ui-sans-serif', 'system-ui']
       },
       colors: {
-        pitch: '#101914',
-        limeball: '#C7F000',
-        turf: '#1FA463',
-        ink: '#0B0F0D',
-        cloud: '#F5F7F4'
+        obsidian: '#0A0A0C',
+        surface: '#121212',
+        surfaceLight: '#1E1E1E',
+        emerald: '#00F260',
+        cyan: '#05D5FF',
+        ink: '#ffffff', // Inverse for dark mode apps
+        muted: '#A0A0A0'
       },
       boxShadow: {
-        glow: '0 0 36px rgba(199, 240, 0, 0.22)'
+        glow: '0 0 24px rgba(0, 242, 96, 0.3)',
+        glass: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
       }
     }
   },

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CalendarPlus, CheckCircle2, Clock3, MapPin, Navigation, Plus, Star } from 'lucide-react';
-import { ActionButton } from '../components/ActionButton';
+import { CalendarPlus, CheckCircle2, MapPin, Navigation, Plus, Star } from 'lucide-react';
 import { bookingApi, terrainApi } from '../services/api';
 
 export function TerrainsPage() {
@@ -93,140 +92,109 @@ export function TerrainsPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <section className="relative overflow-hidden rounded-lg bg-ink p-5 text-white sm:p-7">
-        <img src="https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=1500&q=85" alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/30" />
-        <div className="relative max-w-2xl">
-          <p className="text-sm font-black uppercase text-limeball">Pitch marketplace</p>
-          <h1 className="mt-2 text-4xl font-black leading-none sm:text-5xl">Book the terrain from the same flow as the match.</h1>
-          <p className="mt-4 font-semibold text-white/70">
-            HKick should feel more operational than a directory: live slots, payment-ready booking, distance, trust, and match context.
-          </p>
-        </div>
-      </section>
+    <div className="space-y-6 max-w-xl mx-auto">
+      <div className="flex items-center justify-between pb-2 border-b border-[#333333]">
+        <h1 className="text-2xl font-bold">Explore Pitches</h1>
+        <span className="text-sm text-emerald bg-emerald/10 px-3 py-1 rounded-full font-semibold">
+          {terrains.length} Available
+        </span>
+      </div>
 
-      <section className="grid gap-3 md:grid-cols-3">
-        <Signal icon={Clock3} title="Live slots" text="Show only hours that can still convert." />
-        <Signal icon={CheckCircle2} title="No-show control" text="Ready for deposits and player reliability." />
-        <Signal icon={Navigation} title="Near the squad" text="Prioritize pitches near active players." />
-      </section>
-
-      <section className="rounded-lg border border-black/10 bg-white/80 p-4 dark:border-white/10 dark:bg-white/10">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-black uppercase text-turf dark:text-limeball">My bookings</p>
-            <h2 className="text-2xl font-black">Reserved pitches</h2>
-          </div>
-          <span className="rounded-lg bg-limeball px-3 py-2 text-sm font-black text-ink">{bookings.length}</span>
-        </div>
-
-        {bookings.length ? (
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
+      {bookings.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-bold text-white/50 uppercase tracking-wider">Your Bookings</h2>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {bookings.map((booking) => (
-              <article key={booking.id} className="grid grid-cols-[92px_1fr] overflow-hidden rounded-lg border border-black/10 bg-white dark:border-white/10 dark:bg-white/10">
-                <img src={booking.imageUrl || fallbackPitchImage} onError={useFallbackImage} alt="" className="h-full min-h-28 w-full object-cover" />
+              <div key={booking.id} className="min-w-[240px] glass-panel rounded-2xl overflow-hidden flex flex-col">
+                <img src={booking.imageUrl || fallbackPitchImage} onError={useFallbackImage} alt="" className="h-24 w-full object-cover opacity-80" />
                 <div className="p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-black">{booking.terrainName}</h3>
-                      <p className="mt-1 text-sm font-semibold text-black/55 dark:text-white/55">{booking.address}</p>
-                    </div>
-                    <span className="rounded-lg bg-turf px-2 py-1 text-xs font-black text-white">{booking.status}</span>
-                  </div>
-                  <p className="mt-3 text-sm font-black">
-                    {new Date(booking.startsAt).toLocaleDateString([], { weekday: 'long', day: '2-digit', month: 'short' })} / {new Date(booking.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                  <button className="mt-3 inline-flex items-center gap-2 rounded-lg border border-black/10 px-3 py-2 text-sm font-black transition hover:border-limeball hover:bg-limeball hover:text-ink dark:border-white/10">
-                    <Plus size={15} /> Create match here
+                  <h3 className="font-bold text-sm truncate">{booking.terrainName}</h3>
+                  <p className="text-xs text-white/50">{new Date(booking.startsAt).toLocaleDateString()} • {new Date(booking.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                  <button className="mt-3 w-full bg-[#1E1E1E] hover:bg-[#333333] transition py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-2">
+                    <Plus size={14} /> Create Match
                   </button>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
-        ) : (
-          <p className="mt-4 rounded-lg bg-black/[0.04] px-4 py-3 text-sm font-bold text-black/55 dark:bg-white/[0.06] dark:text-white/55">
-            Your reserved pitches will appear here after confirmation.
-          </p>
-        )}
-      </section>
+        </section>
+      )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="space-y-4">
         {terrains.map((terrain) => {
           const selectedSlot = selectedSlots[terrain.id];
           const status = bookingState[terrain.id];
 
           return (
-          <article key={terrain.id} className="overflow-hidden rounded-lg border border-black/10 bg-white/85 shadow-sm dark:border-white/10 dark:bg-white/10">
+          <article key={terrain.id} className="glass-panel rounded-2xl overflow-hidden">
             <div className="relative">
-              <img src={terrain.imageUrl || fallbackPitchImage} onError={useFallbackImage} alt="" className="h-60 w-full object-cover" />
-              <div className="absolute left-3 top-3 rounded-lg bg-limeball px-3 py-2 text-xs font-black uppercase text-ink">Available tonight</div>
-              <span className="absolute right-3 top-3 flex items-center gap-1 rounded-lg bg-ink/90 px-2.5 py-1 text-sm font-black text-limeball">
-                <Star size={14} fill="currentColor" /> {terrain.rating}
-              </span>
-            </div>
-            <div className="p-4">
-              <div className="flex items-start justify-between gap-3">
+              <img src={terrain.imageUrl || fallbackPitchImage} onError={useFallbackImage} alt="" className="h-48 w-full object-cover opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-obsidian to-transparent opacity-80" />
+              <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between">
                 <div>
-                  <h2 className="text-2xl font-black">{terrain.name}</h2>
-                  <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-black/60 dark:text-white/60"><MapPin size={15} /> {terrain.address}</p>
+                  <h2 className="text-xl font-bold text-white">{terrain.name}</h2>
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-white/80"><MapPin size={12} className="text-cyan" /> {terrain.address}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-black">MAD {terrain.pricePerHour}</p>
-                  <p className="text-xs font-bold uppercase text-black/45 dark:text-white/45">per hour</p>
+                  <span className="flex items-center gap-1 bg-obsidian/80 backdrop-blur rounded-full px-2 py-1 text-xs font-bold text-emerald">
+                    <Star size={12} fill="currentColor" /> {terrain.rating}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex gap-2 flex-wrap flex-1">
+                  {terrain.amenities.slice(0,3).map((amenity) => (
+                    <span key={amenity} className="bg-[#1E1E1E] border border-[#333333] px-2 py-1 rounded text-[10px] font-bold text-white/70 uppercase">
+                      {amenity}
+                    </span>
+                  ))}
+                </div>
+                <div className="text-right ml-4">
+                  <p className="text-lg font-black text-emerald">{terrain.pricePerHour} <span className="text-xs font-normal text-white/50">MAD/hr</span></p>
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                {terrain.amenities.map((amenity) => <span key={amenity} className="rounded-lg bg-black/[0.06] px-3 py-1 text-xs font-bold dark:bg-white/10">{amenity}</span>)}
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="grid grid-cols-4 gap-2">
                 {terrain.availableHours.map((slot) => (
                   <button
                     key={slot.id}
                     onClick={() => selectSlot(terrain.id, slot)}
-                    className={`rounded-lg border px-3 py-2 text-sm font-black transition hover:border-limeball hover:bg-limeball hover:text-ink ${
+                    className={`rounded-xl border transition flex flex-col items-center py-2 ${
                       selectedSlot?.id === slot.id
-                        ? 'border-limeball bg-limeball text-ink'
-                        : 'border-black/10 dark:border-white/10'
+                        ? 'border-emerald bg-emerald text-obsidian shadow-glow'
+                        : 'border-[#333333] bg-[#1E1E1E] text-white/80 hover:border-emerald hover:text-emerald'
                     }`}
                   >
-                    {new Date(slot.startsAt).toLocaleDateString([], { weekday: 'short' })}<br />
-                    {new Date(slot.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <span className="text-[10px] font-bold uppercase">{new Date(slot.startsAt).toLocaleDateString([], { weekday: 'short' })}</span>
+                    <span className="text-xs font-black">{new Date(slot.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </button>
                 ))}
               </div>
 
               {selectedSlot && (
-                <p className="mt-3 rounded-lg bg-limeball/15 px-3 py-2 text-sm font-black text-turf dark:text-limeball">
-                  Selected: {new Date(selectedSlot.startsAt).toLocaleDateString([], { weekday: 'long' })} at {new Date(selectedSlot.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
+                <div className="mt-4 flex flex-col gap-2">
+                  {status && (
+                    <p className={`text-xs font-semibold ${status === 'Booking...' ? 'text-white/60' : 'text-cyan'}`}>
+                      {status}
+                    </p>
+                  )}
+                  <button 
+                    onClick={() => book(terrain)} 
+                    disabled={status === 'Booking...'}
+                    className="w-full bg-emerald text-obsidian font-bold text-sm py-3 rounded-full hover:shadow-glow transition-shadow flex items-center justify-center gap-2"
+                  >
+                    <CalendarPlus size={18} /> {status === 'Booking...' ? 'Reserving...' : 'Reserve Pitch'}
+                  </button>
+                </div>
               )}
-              {status && (
-                <p className="mt-3 rounded-lg bg-black/[0.04] px-3 py-2 text-sm font-bold text-black/60 dark:bg-white/[0.06] dark:text-white/65">
-                  {status}
-                </p>
-              )}
-
-              <ActionButton className="mt-4 w-full" onClick={() => book(terrain)} disabled={status === 'Booking...'}>
-                <CalendarPlus size={17} /> {status === 'Booking...' ? 'Reserving...' : 'Reserve pitch'}
-              </ActionButton>
             </div>
           </article>
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function Signal({ icon: Icon, title, text }) {
-  return (
-    <div className="rounded-lg border border-black/10 bg-white/75 p-4 dark:border-white/10 dark:bg-white/10">
-      <Icon size={19} className="text-turf dark:text-limeball" />
-      <h3 className="mt-2 font-black">{title}</h3>
-      <p className="mt-1 text-sm font-medium text-black/55 dark:text-white/55">{text}</p>
     </div>
   );
 }

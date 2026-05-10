@@ -5,28 +5,16 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
-  background: #f5f7f4;
-}
-
-.dark {
   color-scheme: dark;
-  background: #07100b;
+  background: #0A0A0C; /* obsidian */
 }
 
 body {
   margin: 0;
   min-width: 320px;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(199, 240, 0, 0.16), transparent 28rem),
-    linear-gradient(135deg, #f5f7f4 0%, #ecf0eb 48%, #ffffff 100%);
-}
-
-.dark body {
-  background:
-    radial-gradient(circle at top left, rgba(199, 240, 0, 0.14), transparent 28rem),
-    linear-gradient(135deg, #07100b 0%, #101914 52%, #06110c 100%);
+  background-color: #0A0A0C;
+  color: #ffffff;
 }
 
 button, input, select {
@@ -34,9 +22,24 @@ button, input, select {
 }
 
 .field {
-  @apply w-full rounded-lg border border-black/10 bg-white/80 px-4 py-3 text-sm text-ink outline-none transition focus:border-limeball focus:ring-4 focus:ring-limeball/20 dark:border-white/10 dark:bg-white/10 dark:text-white;
+  @apply w-full rounded-xl border border-[#333333] bg-[#121212] px-4 py-3 text-sm text-white outline-none transition focus:border-emerald focus:ring-1 focus:ring-emerald;
 }
 
 .icon-button {
-  @apply inline-flex h-11 w-11 items-center justify-center rounded-lg border border-black/10 bg-white/80 text-ink transition hover:-translate-y-0.5 hover:border-limeball dark:border-white/10 dark:bg-white/10 dark:text-white;
+  @apply inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#1E1E1E] text-white transition hover:bg-[#333333] active:scale-95;
+}
+
+/* Glassmorphism utility for floating bars or cards */
+.glass-panel {
+  @apply bg-[#121212]/80 backdrop-blur-md border-t border-[#333333]/50;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }

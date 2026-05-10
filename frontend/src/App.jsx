@@ -6,7 +6,7 @@ import { HomePage } from './pages/HomePage';
 import { MatchPage } from './pages/MatchPage';
 import { TerrainsPage } from './pages/TerrainsPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { WalletPage } from './pages/WalletPage';
+import { ChatPage } from './pages/ChatPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { useAuthStore } from './store/authStore';
 import { useAppStore } from './store/appStore';
@@ -39,7 +39,7 @@ export default function App() {
         <Route index element={<HomePage />} />
         <Route path="matches/:id" element={<MatchPage />} />
         <Route path="terrains" element={<TerrainsPage />} />
-        <Route path="wallet" element={<WalletPage />} />
+        <Route path="chat" element={<ChatPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
