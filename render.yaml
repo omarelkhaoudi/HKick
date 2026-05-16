@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: hkick-api
+    runtime: node
+    plan: starter
+    buildCommand: npm install --prefix backend && npm run prisma:generate --prefix backend
+    startCommand: npm run prisma:migrate:deploy --prefix backend && npm run start --prefix backend
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hkick-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: JSON_BODY_LIMIT
+        value: 64kb
+      - key: API_RATE_LIMIT_PER_MINUTE
+        value: 180
+      - key: PAYZONE_ORIGINATOR_ID
+        sync: false
+      - key: PAYZONE_PASSWORD
+        sync: false
+      - key: PAYZONE_PAYMENT_BASE_URL
+        value: https://paiement.payzone.ma
+      - key: PAYZONE_API_VERSION
+        value: "002.70"
+
+databases:
+  - name: hkick-postgres
+    plan: starter

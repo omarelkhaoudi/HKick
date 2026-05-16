@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { getSocket } from '../services/socket';
+import { useEffect } from "react";
+import { getSocket } from "../services/socket";
 
 export function useLiveHkick({ onMatch, onAvailability, onBooking } = {}) {
   useEffect(() => {
@@ -11,29 +11,29 @@ export function useLiveHkick({ onMatch, onAvailability, onBooking } = {}) {
     }
     if (!socket) return;
 
-    socket.emit('availability:online');
-    socket.on('match:created', onMatch);
-    socket.on('match:updated', onMatch);
-    socket.on('availability:updated', onAvailability);
-    socket.on('booking:created', onBooking);
+    socket.emit("availability:online");
+    socket.on("match:created", onMatch);
+    socket.on("match:updated", onMatch);
+    socket.on("availability:updated", onAvailability);
+    socket.on("booking:created", onBooking);
 
     return () => {
-      safeRemoveListener(socket, 'match:created', onMatch);
-      safeRemoveListener(socket, 'match:updated', onMatch);
-      safeRemoveListener(socket, 'availability:updated', onAvailability);
-      safeRemoveListener(socket, 'booking:created', onBooking);
+      safeRemoveListener(socket, "match:created", onMatch);
+      safeRemoveListener(socket, "match:updated", onMatch);
+      safeRemoveListener(socket, "availability:updated", onAvailability);
+      safeRemoveListener(socket, "booking:created", onBooking);
     };
   }, [onAvailability, onBooking, onMatch]);
 }
 
 function safeRemoveListener(socket, event, handler) {
   try {
-    if (typeof socket?.off === 'function') {
+    if (typeof socket?.off === "function") {
       socket.off(event, handler);
       return;
     }
 
-    if (typeof socket?.removeListener === 'function') {
+    if (typeof socket?.removeListener === "function") {
       socket.removeListener(event, handler);
     }
   } catch {

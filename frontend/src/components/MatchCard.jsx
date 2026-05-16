@@ -1,12 +1,22 @@
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import { Bot, CalendarClock, MapPin, ShieldCheck, TimerReset, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { ActionButton } from './ActionButton';
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import {
+  Bot,
+  CalendarClock,
+  MapPin,
+  ShieldCheck,
+  TimerReset,
+  Users,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { ActionButton } from "./ActionButton";
 
 export function MatchCard({ match, onJoin }) {
   const spotsLeft = match.maxPlayers - match.playersCount;
-  const fillRate = Math.min(100, Math.round((match.playersCount / match.maxPlayers) * 100));
+  const fillRate = Math.min(
+    100,
+    Math.round((match.playersCount / match.maxPlayers) * 100),
+  );
   const [reserving, setReserving] = useState(false);
 
   async function reserve() {
@@ -33,7 +43,11 @@ export function MatchCard({ match, onJoin }) {
               <TimerReset size={13} /> {match.status}
             </p>
             <h3 className="mt-1 text-xl font-black">{match.title}</h3>
-            {match.terrain?.name && <p className="mt-1 text-sm font-semibold text-black/50 dark:text-white/50">{match.terrain.name}</p>}
+            {match.terrain?.name && (
+              <p className="mt-1 text-sm font-semibold text-black/50 dark:text-white/50">
+                {match.terrain.name}
+              </p>
+            )}
           </div>
           <span className="rounded-lg bg-black px-2.5 py-1 text-xs font-black text-limeball dark:bg-limeball dark:text-ink">
             {spotsLeft} left
@@ -46,15 +60,25 @@ export function MatchCard({ match, onJoin }) {
             <span>{fillRate}%</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
-            <div className="h-full rounded-full bg-limeball" style={{ width: `${fillRate}%` }} />
+            <div
+              className="h-full rounded-full bg-limeball"
+              style={{ width: `${fillRate}%` }}
+            />
           </div>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2 text-sm text-black/62 dark:text-white/65">
           <Meta icon={MapPin}>{match.city}</Meta>
-          <Meta icon={CalendarClock}>{new Date(match.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Meta>
-          <Meta icon={Users}>{match.playersCount}/{match.maxPlayers} players</Meta>
-          <Meta icon={Bot}>AI skill {match.averageSkill || 'new'}</Meta>
+          <Meta icon={CalendarClock}>
+            {new Date(match.startsAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Meta>
+          <Meta icon={Users}>
+            {match.playersCount}/{match.maxPlayers} players
+          </Meta>
+          <Meta icon={Bot}>AI skill {match.averageSkill || "new"}</Meta>
         </div>
 
         <div className="mt-3 flex items-center gap-2 rounded-lg bg-black/[0.04] px-3 py-2 text-xs font-bold text-black/55 dark:bg-white/[0.06] dark:text-white/55">
@@ -63,11 +87,17 @@ export function MatchCard({ match, onJoin }) {
         </div>
 
         <div className="mt-4 flex gap-2">
-          <ActionButton onClick={reserve} disabled={reserving} className="flex-1">
-            {reserving ? 'Reserving...' : 'Reserve spot'}
+          <ActionButton
+            onClick={reserve}
+            disabled={reserving}
+            className="flex-1"
+          >
+            {reserving ? "Reserving..." : "Reserve spot"}
           </ActionButton>
           <Link to={`/matches/${match.id}`} className="flex-1">
-            <ActionButton variant="ghost" className="w-full">Lobby</ActionButton>
+            <ActionButton variant="ghost" className="w-full">
+              Lobby
+            </ActionButton>
           </Link>
         </div>
       </div>

@@ -13,6 +13,31 @@ const createMatchSchema = z.object({
   terrainId: z.string().optional().nullable()
 });
 
+const confirmationSchema = z.object({
+  userId: z.string().optional(),
+  status: z.enum(['PENDING', 'CONFIRMED', 'DECLINED', 'CHECKED_IN', 'NO_SHOW']),
+  note: z.string().max(240).optional().nullable()
+});
+
+const depositSchema = z.object({
+  userId: z.string().optional(),
+  amount: z.number().positive().max(10000),
+  status: z.enum(['PENDING', 'RESERVED', 'CAPTURED', 'REFUNDED', 'FORFEITED']).default('RESERVED')
+});
+
+const resultSchema = z.object({
+  teamVoltScore: z.number().int().min(0).max(99),
+  teamPulseScore: z.number().int().min(0).max(99),
+  isFinal: z.boolean().default(false)
+});
+
+const reviewSchema = z.object({
+  subjectId: z.string(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().max(500).optional().nullable(),
+  tags: z.array(z.string().min(1).max(32)).max(8).default([])
+});
+
 export async function listMatches(req, res) {
   const city = req.query.city || req.user.profile?.city;
   const matches = await prisma.match.findMany({
@@ -136,6 +161,169 @@ export async function sendMessage(req, res) {
 
   req.io.to(`match:${req.params.id}`).emit('chat:message', message);
   res.status(201).json({ message });
+}
+
+export async function upsertConfirmation(req, res) {
+  const input = confirmationSchema.parse(req.body);
+  const targetUserId = input.userId || req.user.id;
+  await assertCanManageMatchUser(req.params.id, req.user.id, targetUserId);
+
+  const now = new Date();
+  const confirmation = await prisma.matchConfirmation.upsert({
+    where: { matchId_userId: { matchId: req.params.id, userId: targetUserId } },
+    update: {
+      status: input.status,
+      note: input.note,
+      confirmedAt: ['CONFIRMED', 'CHECKED_IN'].includes(input.status) ? now : null,
+      checkedInAt: input.status === 'CHECKED_IN' ? now : null
+    },
+    create: {
+      matchId: req.params.id,
+      userId: targetUserId,
+      status: input.status,
+      note: input.note,
+      confirmedAt: ['CONFIRMED', 'CHECKED_IN'].includes(input.status) ? now : null,
+      checkedInAt: input.status === 'CHECKED_IN' ? now : null
+    }
+  });
+
+  req.io.to(`match:${req.params.id}`).emit('match:confirmation', confirmation);
+  res.json({ confirmation });
+}
+
+export async function reserveDeposit(req, res) {
+  const input = depositSchema.parse(req.body);
+  const targetUserId = input.userId || req.user.id;
+  await assertCanManageMatchUser(req.params.id, req.user.id, targetUserId);
+
+  const deposit = await prisma.$transaction(async (tx) => {
+    let transaction = null;
+
+    if (['RESERVED', 'CAPTURED'].includes(input.status)) {
+      transaction = await tx.walletTransaction.create({
+        data: {
+          userId: targetUserId,
+          type: 'DEBIT',
+          label: 'Match deposit',
+          amount: input.amount,
+          status: input.status
+        }
+      });
+    }
+
+    return tx.matchDeposit.upsert({
+      where: { matchId_userId: { matchId: req.params.id, userId: targetUserId } },
+      update: {
+        amount: input.amount,
+        status: input.status,
+        walletTransactionId: transaction?.id,
+        reservedAt: input.status === 'RESERVED' ? new Date() : undefined,
+        capturedAt: input.status === 'CAPTURED' ? new Date() : undefined,
+        refundedAt: input.status === 'REFUNDED' ? new Date() : undefined
+      },
+      create: {
+        matchId: req.params.id,
+        userId: targetUserId,
+        amount: input.amount,
+        status: input.status,
+        walletTransactionId: transaction?.id,
+        reservedAt: input.status === 'RESERVED' ? new Date() : null,
+        capturedAt: input.status === 'CAPTURED' ? new Date() : null,
+        refundedAt: input.status === 'REFUNDED' ? new Date() : null
+      }
+    });
+  });
+
+  await createNotification(req.io, targetUserId, {
+    type: 'WALLET',
+    title: 'Match deposit updated',
+    body: `MAD ${Number(deposit.amount)} deposit is ${deposit.status.toLowerCase()}.`
+  });
+
+  req.io.to(`match:${req.params.id}`).emit('match:deposit', deposit);
+  res.status(201).json({ deposit });
+}
+
+export async function upsertResult(req, res) {
+  const input = resultSchema.parse(req.body);
+  await assertMatchParticipant(req.params.id, req.user.id);
+
+  const result = await prisma.matchResult.upsert({
+    where: { matchId: req.params.id },
+    update: { ...input, submittedById: req.user.id },
+    create: { ...input, matchId: req.params.id, submittedById: req.user.id }
+  });
+
+  if (input.isFinal) {
+    await prisma.match.update({ where: { id: req.params.id }, data: { status: 'COMPLETED' } });
+  }
+
+  req.io.to(`match:${req.params.id}`).emit('match:result', result);
+  res.json({ result });
+}
+
+export async function createReview(req, res) {
+  const input = reviewSchema.parse(req.body);
+  await assertMatchParticipant(req.params.id, req.user.id);
+  await assertMatchParticipant(req.params.id, input.subjectId);
+
+  if (input.subjectId === req.user.id) {
+    return res.status(400).json({ message: 'You cannot review yourself' });
+  }
+
+  const review = await prisma.matchReview.upsert({
+    where: {
+      matchId_authorId_subjectId: {
+        matchId: req.params.id,
+        authorId: req.user.id,
+        subjectId: input.subjectId
+      }
+    },
+    update: {
+      rating: input.rating,
+      comment: input.comment,
+      tags: input.tags
+    },
+    create: {
+      matchId: req.params.id,
+      authorId: req.user.id,
+      subjectId: input.subjectId,
+      rating: input.rating,
+      comment: input.comment,
+      tags: input.tags
+    }
+  });
+
+  res.status(201).json({ review });
+}
+
+async function assertMatchParticipant(matchId, userId) {
+  const participant = await prisma.matchPlayer.findUnique({
+    where: { matchId_userId: { matchId, userId } }
+  });
+
+  if (!participant) {
+    const error = new Error('Only match participants can perform this action');
+    error.statusCode = 403;
+    throw error;
+  }
+}
+
+async function assertCanManageMatchUser(matchId, actorId, targetUserId) {
+  await assertMatchParticipant(matchId, targetUserId);
+
+  if (actorId === targetUserId) return;
+
+  const match = await prisma.match.findUnique({
+    where: { id: matchId },
+    select: { ownerId: true }
+  });
+
+  if (match?.ownerId !== actorId) {
+    const error = new Error('Only the match owner can manage another player');
+    error.statusCode = 403;
+    throw error;
+  }
 }
 
 async function rebalanceMatch(matchId) {
@@ -263,7 +451,11 @@ const matchInclude = {
   players: {
     include: { user: { include: { profile: true } } },
     orderBy: { joinedAt: 'asc' }
-  }
+  },
+  confirmations: true,
+  deposits: true,
+  result: true,
+  reviews: true
 };
 
 function cryptoRandomCode() {
