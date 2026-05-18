@@ -2,7 +2,7 @@ services:
   - type: web
     name: hkick-api
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm install --prefix backend && npm run prisma:generate --prefix backend
     startCommand: npm run prisma:migrate:deploy --prefix backend && npm run start --prefix backend
     healthCheckPath: /health
@@ -32,4 +32,4 @@ services:
 
 databases:
   - name: hkick-postgres
-    plan: starter
+    plan: free
