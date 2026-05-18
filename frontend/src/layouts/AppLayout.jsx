@@ -38,13 +38,13 @@ export function AppLayout() {
   }, [hydrateNotifications]);
 
   return (
-    <div className="min-h-screen bg-obsidian text-white flex justify-center md:justify-start">
+    <div className="min-h-screen bg-obsidian text-white flex flex-col md:flex-row overflow-x-hidden relative w-full">
       {/* Decorative background glow */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-[500px] bg-emerald/10 blur-[120px] rounded-full pointer-events-none z-0" />
 
       {/* Top Header - Mobile Only */}
-      <header className="sticky top-0 z-30 bg-obsidian/60 backdrop-blur-xl border-b border-white/5 px-5 py-4 md:hidden fixed w-full">
-        <div className="flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-30 bg-obsidian/80 backdrop-blur-xl border-b border-white/5 px-4 py-3 md:hidden">
+        <div className="flex items-center justify-between w-full max-w-xl mx-auto">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald to-[#00A643] text-obsidian shadow-glow">
               <Zap size={18} fill="currentColor" />
@@ -90,7 +90,7 @@ export function AppLayout() {
       </aside>
 
       {/* Main Content - Centered */}
-      <main className="flex-1 w-full max-w-xl pb-32 md:pb-12 pt-20 md:pt-12 px-4 mx-auto md:ml-[280px] lg:mx-auto relative z-10">
+      <main className="flex-1 w-full max-w-xl pb-32 md:pb-12 pt-24 md:pt-12 px-4 mx-auto md:ml-[280px] lg:mx-auto relative z-10 overflow-x-hidden">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -104,8 +104,8 @@ export function AppLayout() {
       <div className="hidden lg:block w-[320px] border-l border-white/5 fixed h-screen right-0 top-0 bg-obsidian/20 backdrop-blur-sm z-20"></div>
 
       {/* Floating Bottom Navigation Dock - Mobile Only */}
-      <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center px-4 md:hidden">
-        <nav className="flex items-center gap-1 glass-panel rounded-full px-2 py-2 shadow-2xl border border-white/10 bg-surface/80 backdrop-blur-2xl w-full max-w-sm justify-between">
+      <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center px-3 md:hidden pointer-events-none">
+        <nav className="flex items-center gap-0.5 sm:gap-1 glass-panel rounded-full px-1.5 py-1.5 shadow-2xl border border-white/10 bg-surface/80 backdrop-blur-2xl w-full max-w-md justify-between pointer-events-auto">
           {tabs.map((tab) => (
             <Tab key={tab.to} {...tab} compact />
           ))}
